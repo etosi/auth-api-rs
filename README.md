@@ -93,7 +93,7 @@ SMTP_PASSWORD=your-email-password
 
 ### 🧪 使用 Postman 测试 API
 
-您可以使用提供的 `Postman` 集合测试所有 API 端点。[在这里下载 Postman 集合](https://github.com/etosi/auth-api-rs/blob/master/postman_collection.json) 并将其导入 Postman。
+您可以使用提供的 `Postman` 集合测试所有 API 端点。[在这里下载 Postman 集合](https://github.com/etosi/auth-api-rs/blob/master/auth_api.postman_collection.json) 并将其导入 Postman。
 
 API 端点：
 
