@@ -1,19 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
-        <h2 style="color: #333333;">Email Verification</h2>
-        <p style="color: #555555;">Hello, {{username}}!</p>
-        <p style="color: #555555;">Thank you for registering at our application. Please click the link below to verify your email address:</p>
-        <a href="{{verification_link}}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Verify Email</a>
-        <p style="color: #555555;">If you did not register, please ignore this email.</p>
-        <p style="color: #555555;">Best regards,</p>
-        <p style="color: #555555;">The Application Team</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>邮箱验证</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    "
+  >
+    <div
+      style="
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+      "
+    >
+      <h2 style="color: #333333">邮箱验证</h2>
+      <p style="color: #555555">您好, {{username}}!</p>
+      <p style="color: #555555">
+        感谢您注册 Auth API，请点击下面的链接验证您的电子邮件地址：
+      </p>
+      <a
+        href="{{verification_link}}"
+        style="
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          color: #ffffff;
+          background-color: #007bff;
+          text-decoration: none;
+          border-radius: 5px;
+        "
+        >立即验证</a
+      >
+      <p style="color: #555555">如果您没有注册，请忽略此电子邮件。</p>
+      <p style="color: #555555">鸣谢！</p>
+      <p style="color: #555555">Auth API 团队</p>
     </div>
-</body>
+  </body>
 </html>

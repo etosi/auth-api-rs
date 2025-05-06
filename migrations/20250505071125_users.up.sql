@@ -1,5 +1,7 @@
 -- Add up migration script here
-CREATE TYPE user_role AS ENUM ('admin', 'user');
+
+CREATE TYPE user_role AS ENUM ('admin', 'normal');
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE "users" (
@@ -10,9 +12,9 @@ CREATE TABLE "users" (
     password VARCHAR(100) NOT NULL,
     verification_token VARCHAR(255),
     token_expires_at TIMESTAMP WITH TIME ZONE,
-    role user_role NOT NULL DEFAULT 'user',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    role user_role NOT NULL DEFAULT 'normal',
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX users_email_idx ON users (email);

@@ -1,71 +1,86 @@
-# Rust Backend with Axum, PostgreSQL, & Email Verification
+# auth-api-rs
 
-[![Watch the video](https://img.youtube.com/vi/M0wi7V1rP4Y/maxresdefault.jpg)](https://youtu.be/M0wi7V1rP4Y)
+*`Rust` 后端与 `Axum`、`PostgreSQL` 和电子邮箱验证。*
 
-This repository contains the source code for a fully functional backend application built with Rust, using the [Axum](https://github.com/tokio-rs/axum) framework. It includes user authentication, email verification, and a connection to a PostgreSQL database.
+> - [观看原视频](https://youtu.be/M0wi7V1rP4Y)
+> - [原代码仓库](https://github.com/AarambhDevHub/rust-backend-axum)
 
-## 🛠️ Features
+该存储库包含使用 `Rust` 构建的功能齐全的后端应用程序的源代码，使用 [Axum](https://github.com/tokio-rs/axum) 框架。它包括用户身份验证、邮箱验证和与 `PostgreSQL` 数据库的连接。
 
-- **User Authentication**: Register, login, password reset functionality.
-- **Email Verification**: Users receive an email to verify their accounts.
-- **PostgreSQL Integration**: Store and manage user data securely.
-- **JWT Authentication**: Secure API endpoints with JSON Web Tokens (JWT).
-- **Middleware**: Implement custom middleware for authentication.
-- **Testing with Postman**: A full Postman collection is provided to test all API endpoints.
+## 🛠️ 功能列表
 
-## 🚀 Getting Started
+- **用户身份验证**：注册、登录、密码重置功能。
+- **邮箱验证**：用户收到电子邮件以验证其帐户。
+- **PostgreSQL 集成**：安全存储和管理用户数据。
+- **JWT 身份验证**：使用 JSON Web 令牌 (`JWT`) 保护 API 端点。
+- **中间件**：实现自定义中间件进行身份验证。
+- **使用 Postman 测试**：提供完整的 `Postman` 集合以测试所有 API 端点。
 
-### Prerequisites
+## 🚀 快速入门
 
-To run this project, you will need:
+### 先决条件
 
-- [Rust](https://www.rust-lang.org/) installed on your machine.
-- [PostgreSQL](https://www.postgresql.org/) installed and running locally or remotely.
-- [SQLx-CLI](https://crates.io/crates/sqlx-cli) for database migrations.
-- [Postman](https://www.postman.com/) for testing API endpoints.
+运行此项目，您需要：
 
-### Installation
+- [Rust](https://www.rust-lang.org/) 安装在您的计算机上。
+- [PostgreSQL](https://www.postgresql.org/) 本地或远程安装并运行。
+- [SQLx-CLI](https://crates.io/crates/sqlx-cli) 用于数据库迁移。
+- [Postman](https://www.postman.com/) 用于测试 API 端点。
 
-1. **Clone the repository:**
+### 安装
+
+1. **克隆存储库：**
 
     ```bash
-    git clone https://github.com/AarambhDevHub/rust-backend-axum.git
-    cd rust-backend-axum
+    git clone https://github.com/etosi/auth-api-rs.git
+    cd auth-api-rs
     ```
 
-2. **Install dependencies:**
+2. **安装依赖项：**
 
     ```bash
     cargo install --path .
     ```
 
-3. **Set up PostgreSQL:**
+3. **设置 PostgreSQL：**
 
-   Create a new database in PostgreSQL and update the `.env` file with your database URL.
-
-   Example:
-
-    ```
-    DATABASE_URL=postgres://user:password@localhost/dbname
-    ```
-
-4. **Run migrations:**
+    在 `PostgreSQL` 中创建一个新数据库，并使用您的数据库 URL 更新 `.env` 文件。
+    示例：
 
     ```bash
+    DATABASE_URL=postgres://user:password@localhost:5432/auth_api
+    ```
+
+4. **运行迁移：**
+
+    ```bash
+    sqlx database create 
     sqlx migrate run
     ```
 
-5. **Start the server:**
+    > 安装 `sqlx-cli`：
+    >
+    > ```rust
+    > cargo install sqlx-cli --no-default-features --features native-tls,postgres
+    > ```
+    >
+    > 创建迁移文件：
+    >
+    > ```bash
+    > sqlx migrate add -r users
+    > ```
+
+5. **启动服务器：**
 
     ```bash
     cargo run
     ```
 
-   The server will be running on `http://127.0.0.1:8000`.
+    服务运行地址： `http://127.0.0.1:8000`
 
-## 📬 Email Verification Setup
+## 📬 邮箱验证设置
 
-To enable email verification, you will need to configure an email service provider. Update the following environment variables in your `.env` file:
+为了启用电子邮箱验证，您需要配置电子邮件服务提供商。更新 `.env` 文件中的以下环境变量：
 
 ```env
 SMTP_SERVER=smtp.your-email-provider.com
@@ -74,31 +89,26 @@ SMTP_USER=your-email@example.com
 SMTP_PASSWORD=your-email-password
 ```
 
-The application will send verification emails to users after registration.
+应用程序将在注册后向用户发送验证电子邮件。
 
-## 🧪 API Testing with Postman
+### 🧪 使用 Postman 测试 API
 
-You can test all the API endpoints using the provided Postman collection. [Download the Postman collection here](https://github.com/AarambhDevHub/rust-backend-axum/blob/main/postman_collection.json) and import it into Postman.
+您可以使用提供的 `Postman` 集合测试所有 API 端点。[在这里下载 Postman 集合](https://github.com/etosi/auth-api-rs/blob/master/postman_collection.json) 并将其导入 Postman。
 
-API Endpoints:
+API 端点：
 
-POST `/api/auth/register`: Register a new user
+- POST `/api/auth/sign-up`: 注册新用户
+- POST `/api/auth/sign-in`: 用户登录
+- GET `/api/auth/forgot-password`: 请求密码重置
+- POST `/api/auth/reset-password`: 重置密码
+- GET `/api/auth/verify`: 验证用户电子邮件
+- GET `/api/users/me`: 获取当前用户信息（JWT 保护）
 
-POST `/api/auth/login`: Login with an existing user
+## ⚙️ 配置
 
-GET `/api/auth/forgot-password`: Request password reset
+这个应用需要一个 `.env` 文件来配置。以下是所需的环境变量：
 
-POST `/api/auth/reset-password`: Reset user password
-
-GET `/api/auth/verify`: Verify email with token
-
-GET `/api/users/me`: Get current user profile (JWT required)
-
-## ⚙️ Configuration
-
-The application requires a .env file for configuration. Below are the required environment variables:
-
-```
+```ini
 # -----------------------------------------------------------------------------
 # Database (PostgreSQL)
 # -----------------------------------------------------------------------------
@@ -108,7 +118,7 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/axum_auth
 # JSON Web Token Credentials
 # -----------------------------------------------------------------------------
 JWT_SECRET_KEY=my_ultra_secure_jwt_secret_key
-JWT_MAXAGE=60
+JWT_MAX_AGE=60
 
 # -----------------------------------------------------------------------------
 # SMTP Server Settings
@@ -120,26 +130,14 @@ SMTP_PASSWORD=your_email_password
 SMTP_FROM_ADDRESS=no-reply@yourdomain.com
 ```
 
-## 🎯 Future Enhancements
+## 🎯 功能改进
 
-Add role-based access control (RBAC) for different user roles (admin, user).
-Improve security with additional layers like rate limiting and input validation.
-Expand API to include more features like user profiles, etc.
+- 添加基于角色的访问控制 `RBAC` 以支持不同的用户角色：管理员(admin)、普通用户(normal)。
+- 增强安全性，增加速率限制和输入验证等附加层。
+- 扩展 API 以包括更多功能，例如用户配置文件等。
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## ✨ 致谢
 
-
-## ✨ Acknowledgements
-
-[Axum](https://github.com/tokio-rs/axum) for building powerful, fast APIs in Rust.
-
-[PostgreSQL](https://www.postgresql.org/) for reliable database management.
-
-[SQLx](https://github.com/launchbadge/sqlx) for async SQL in Rust.
-
-## Donations
-
-If you find this project useful and would like to support its continued development, you can make a donation via [Buy Me a Coffee](https://buymeacoffee.com/aarambhdevhub).
-
-Thank you for your support!
+- [Axum](https://github.com/tokio-rs/axum) 用于构建强大、快速的 Rust API。
+- [PostgreSQL](https://www.postgresql.org/) 用于可靠的数据库管理。
+- [SQLx](https://github.com/launchbadge/sqlx) 用于 Rust 中的异步 SQL。

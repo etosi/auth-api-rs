@@ -2,17 +2,25 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, sqlx::Type, PartialEq)]
-#[sqlx(type_name = "user_role", rename_all = "lowercase")]
+#[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
-    User
+    Normal,
 }
 
 impl UserRole {
+    pub fn from_str(role: &str) -> Option<Self> {
+        match role.to_lowercase().as_str() {
+            "admin" => Some(UserRole::Admin),
+            "normal" => Some(UserRole::Normal),
+            _ => None,
+        }
+    }
+
     pub fn to_str(&self) -> &str {
         match self {
             UserRole::Admin => "admin",
-            UserRole::User => "user",
+            UserRole::Normal => "normal",
         }
     }
 }
@@ -27,9 +35,8 @@ pub struct User {
     pub verified: bool,
     pub verification_token: Option<String>,
     pub token_expires_at: Option<DateTime<Utc>>,
-    #[serde(rename = "createdAt")]
+    #[serde(rename = "created_at")]
     pub created_at: Option<DateTime<Utc>>,
-    #[serde(rename = "updatedAt")]
+    #[serde(rename = "updated_at")]
     pub updated_at: Option<DateTime<Utc>>,
-
 }
