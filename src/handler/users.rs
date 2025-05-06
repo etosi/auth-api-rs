@@ -1,25 +1,25 @@
 use std::sync::Arc;
 
 use axum::{
+    Extension, Json, Router,
     extract::Query,
     middleware,
     response::IntoResponse,
     routing::{get, put},
-    Extension, Json, Router,
 };
 use validator::Validate;
 
 use crate::{
+    AppState,
     db::UserExt,
     dtos::{
-        FilterUserDto, NameUpdateDto, RequestQueryDto, Response, RoleUpdateDto, UserData,
-        UserListResponseDto, UserPasswordUpdateDto, UserResponseDto,
+        FilterUserDto, NameUpdateDto, RequestQueryDto, Response, ResponseStatus, RoleUpdateDto,
+        UserData, UserListResponseDto, UserPasswordUpdateDto, UserResponseDto,
     },
     error::{ErrorMessage, HttpError},
-    middleware::{role_check, JWTAuthMiddeware},
+    middleware::{JWTAuthMiddeware, role_check},
     models::UserRole,
     utils::password,
-    AppState,
 };
 
 pub fn users_handler() -> Router {
@@ -48,7 +48,7 @@ pub async fn get_me(
     let filtered_user = FilterUserDto::filter_user(&user.user);
 
     let response_data = UserResponseDto {
-        status: "success".to_string(),
+        status: ResponseStatus::Success,
         data: UserData {
             user: filtered_user,
         },
@@ -81,7 +81,7 @@ pub async fn get_users(
         .map_err(|e| HttpError::server_error(e.to_string()))?;
 
     let response = UserListResponseDto {
-        status: "success".to_string(),
+        status: ResponseStatus::Success,
         users: FilterUserDto::filter_users(&users),
         results: user_count,
     };
@@ -113,7 +113,7 @@ pub async fn update_user_name(
         data: UserData {
             user: filtered_user,
         },
-        status: "success".to_string(),
+        status: ResponseStatus::Success,
     };
 
     Ok(Json(response))
@@ -147,7 +147,7 @@ pub async fn update_user_role(
         data: UserData {
             user: filtered_user,
         },
-        status: "success".to_string(),
+        status: ResponseStatus::Success,
     };
 
     Ok(Json(response))

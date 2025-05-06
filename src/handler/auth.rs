@@ -1,32 +1,33 @@
 use std::sync::Arc;
 
 use axum::{
+    Extension, Json, Router,
     extract::Query,
-    http::{header, HeaderMap, StatusCode},
+    http::{HeaderMap, StatusCode, header},
     response::{IntoResponse, Redirect},
     routing::{get, post},
-    Extension, Json, Router,
 };
 use axum_extra::extract::cookie::Cookie;
 use chrono::{Duration, Utc};
 use validator::Validate;
 
 use crate::{
+    AppState,
     db::UserExt,
     dtos::{
-        ForgotPasswordRequestDto, ResetPasswordRequestDto, Response, SignInUserDto, SignUpUserDto,
-        UserSignInResponseDto, VerifyEmailQueryDto,
+        ForgotPasswordRequestDto, ResetPasswordRequestDto, Response, ResponseStatus, SignInUserDto,
+        SignUpUserDto, UserSignInResponseDto, UserSignOutResponseDto, VerifyEmailQueryDto,
     },
     error::{ErrorMessage, HttpError},
     mail::mails::{send_forgot_password_email, send_verification_email, send_welcome_email},
     utils::{password, token},
-    AppState,
 };
 
 pub fn auth_handler() -> Router {
     Router::new()
         .route("/sign-up", post(sign_up))
         .route("/sign-in", post(sign_in))
+        .route("/sign-out", post(sign_out))
         .route("/verify", get(verify_email))
         .route("/forgot-password", post(forgot_password))
         .route("/reset-password", post(reset_password))
@@ -123,7 +124,7 @@ pub async fn sign_in(
             .build();
 
         let response = axum::response::Json(UserSignInResponseDto {
-            status: "success".to_string(),
+            status: ResponseStatus::Success,
             token,
         });
 
@@ -140,6 +141,30 @@ pub async fn sign_in(
             ErrorMessage::WrongCredentials.to_string(),
         ))
     }
+}
+
+pub async fn sign_out(
+    Extension(_app_state): Extension<Arc<AppState>>,
+) -> Result<impl IntoResponse, HttpError> {
+    let token = Cookie::build(("token", ""))
+        .path("/")
+        .max_age(time::Duration::seconds(0))
+        .http_only(true)
+        .build();
+
+    let response = axum::response::Json(UserSignOutResponseDto {
+        status: ResponseStatus::Success,
+        message: "Sign out successful".to_string(),
+    });
+    let mut headers = HeaderMap::new();
+
+    headers.append(header::SET_COOKIE, token.to_string().parse().unwrap());
+
+    // let mut response = Redirect::to("http://localhost:5173/sign-in").into_response();
+    let mut response = response.into_response();
+    response.headers_mut().extend(headers);
+
+    Ok(response)
 }
 
 pub async fn verify_email(

@@ -1,20 +1,31 @@
 use axum::{
+    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+use crate::dtos::ResponseStatus;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ErrorResponse {
-    pub status: String,
+    pub status: ResponseStatus,
     pub message: String,
 }
 
 impl fmt::Display for ErrorResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", serde_json::to_string(&self).unwrap())
+    }
+}
+
+impl ErrorResponse {
+    pub fn new(message: impl Into<String>) -> Self {
+        ErrorResponse {
+            status: ResponseStatus::Failure,
+            message: message.into(),
+        }
     }
 }
 
@@ -58,13 +69,13 @@ impl ErrorMessage {
             }
             ErrorMessage::InvalidToken => "Authentication token is invalid or expired".to_string(),
             ErrorMessage::TokenNotProvided => {
-                "You are not logged in, please provide a token".to_string()
+                "You are not signed in, please provide a token".to_string()
             }
             ErrorMessage::PermissionDenied => {
                 "You are not allowed to perform this action".to_string()
             }
             ErrorMessage::UserNotAuthenticated => {
-                "Authentication required. Please log in.".to_string()
+                "Authentication required. Please sign in first.".to_string()
             }
         }
     }
@@ -113,10 +124,7 @@ impl HttpError {
     }
 
     pub fn into_http_response(self) -> Response {
-        let json_response = Json(ErrorResponse {
-            status: "failure".to_string(),
-            message: self.message.clone(),
-        });
+        let json_response = Json(ErrorResponse::new(self.message));
 
         (self.status, json_response).into_response()
     }

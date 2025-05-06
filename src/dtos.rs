@@ -5,6 +5,14 @@ use validator::Validate;
 
 use crate::models::User;
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ResponseStatus {
+    #[serde(rename = "success")]
+    Success,
+    #[serde(rename = "failure")]
+    Failure,
+}
+
 #[derive(Validate, Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SignUpUserDto {
     #[validate(length(min = 1, message = "Name is required"))]
@@ -88,21 +96,27 @@ pub struct UserData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserResponseDto {
-    pub status: String,
+    pub status: ResponseStatus,
     pub data: UserData,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserListResponseDto {
-    pub status: String,
+    pub status: ResponseStatus,
     pub users: Vec<FilterUserDto>,
     pub results: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserSignInResponseDto {
-    pub status: String,
+    pub status: ResponseStatus,
     pub token: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserSignOutResponseDto {
+    pub status: ResponseStatus,
+    pub message: String,
 }
 
 #[derive(Serialize, Deserialize)]
