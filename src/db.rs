@@ -45,7 +45,7 @@ pub trait UserExt {
         name: T,
     ) -> Result<User, sqlx::Error>;
 
-    async fn update_user_role(&self, user_id: Uuid, role: UserRole) -> Result<User, sqlx::Error>;
+    async fn change_user_role(&self, user_id: Uuid, role: UserRole) -> Result<User, sqlx::Error>;
 
     async fn update_user_password(
         &self,
@@ -96,13 +96,10 @@ impl UserExt for DBClient {
             user = sqlx::query_as!(
                 User,
                 r#"
-                SELECT id, name, email, password, verified, created_at, updated_at, verification_token, token_expires_at, role as "role: UserRole" 
-                FROM users 
-                WHERE verification_token = $1"#,
+                SELECT id, name, email, password, verified, created_at, updated_at, verification_token, token_expires_at, role as "role: UserRole" FROM users WHERE verification_token = $1"#,
                 token
             )
-            .fetch_optional(&self.pool)
-            .await?;
+            .fetch_optional(&self.pool).await?;
         }
 
         Ok(user)
@@ -177,7 +174,7 @@ impl UserExt for DBClient {
         Ok(user)
     }
 
-    async fn update_user_role(
+    async fn change_user_role(
         &self,
         user_id: Uuid,
         new_role: UserRole,

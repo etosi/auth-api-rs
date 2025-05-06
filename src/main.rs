@@ -1,17 +1,20 @@
-mod models;
 mod config;
+mod db;
 mod dtos;
 mod error;
-mod db;
-mod utils;
-mod middleware;
-mod mail;
 mod handler;
+mod mail;
+mod middleware;
+mod models;
 mod routes;
+mod utils;
 
 use std::sync::Arc;
 
-use axum::http::{header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE}, HeaderValue, Method};
+use axum::http::{
+    HeaderValue, Method,
+    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
+};
 use config::Config;
 use db::DBClient;
 use dotenv::dotenv;
@@ -29,20 +32,20 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
-    .with_max_level(LevelFilter::DEBUG)
-    .init();
+        .with_max_level(LevelFilter::DEBUG)
+        .init();
 
     dotenv().ok();
 
     let config = Config::init();
 
     let pool = match PgPoolOptions::new()
-            .max_connections(10)
-            .connect(&config.database_url)
-            .await
+        .max_connections(10)
+        .connect(&config.database_url)
+        .await
     {
         Ok(pool) => {
-            println!("✅Connection to the database is successful!");
+            println!("✅ Connection to the database is successful!");
             pool
         }
         Err(err) => {
@@ -55,7 +58,7 @@ async fn main() {
         .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
         .allow_credentials(true)
-        .allow_methods([Method::GET, Method::POST,Method::PUT]);
+        .allow_methods([Method::GET, Method::POST, Method::PUT]);
 
     let db_client = DBClient::new(pool);
     let app_state = AppState {
@@ -65,15 +68,14 @@ async fn main() {
 
     let app = create_router(Arc::new(app_state.clone())).layer(cors.clone());
 
-    
     println!(
         "{}",
         format!("🚀 Server is running on http://localhost:{}", config.port)
     );
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", &config.port))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     axum::serve(listener, app).await.unwrap();
 }

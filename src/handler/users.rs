@@ -13,11 +13,11 @@ use crate::{
     AppState,
     db::UserExt,
     dtos::{
-        FilterUserDto, NameUpdateDto, RequestQueryDto, Response, ResponseStatus, RoleUpdateDto,
+        ChangeUserRoleDto, FilterUserDto, NameUpdateDto, RequestQueryDto, Response, ResponseStatus,
         UserData, UserListResponseDto, UserPasswordUpdateDto, UserResponseDto,
     },
     error::{ErrorMessage, HttpError},
-    middleware::{JWTAuthMiddeware, role_check},
+    middleware::{JWTAuthInfo, role_check},
     models::UserRole,
     utils::password,
 };
@@ -37,13 +37,13 @@ pub fn users_handler() -> Router {
             })),
         )
         .route("/name", put(update_user_name))
-        .route("/role", put(update_user_role))
+        .route("/role", put(change_user_role))
         .route("/password", put(update_user_password))
 }
 
 pub async fn get_me(
     Extension(_app_state): Extension<Arc<AppState>>,
-    Extension(user): Extension<JWTAuthMiddeware>,
+    Extension(user): Extension<JWTAuthInfo>,
 ) -> Result<impl IntoResponse, HttpError> {
     let filtered_user = FilterUserDto::filter_user(&user.user);
 
@@ -91,7 +91,7 @@ pub async fn get_users(
 
 pub async fn update_user_name(
     Extension(app_state): Extension<Arc<AppState>>,
-    Extension(user): Extension<JWTAuthMiddeware>,
+    Extension(user): Extension<JWTAuthInfo>,
     Json(body): Json<NameUpdateDto>,
 ) -> Result<impl IntoResponse, HttpError> {
     body.validate()
@@ -119,10 +119,10 @@ pub async fn update_user_name(
     Ok(Json(response))
 }
 
-pub async fn update_user_role(
+pub async fn change_user_role(
     Extension(app_state): Extension<Arc<AppState>>,
-    Extension(user): Extension<JWTAuthMiddeware>,
-    Json(body): Json<RoleUpdateDto>,
+    Extension(user): Extension<JWTAuthInfo>,
+    Json(body): Json<ChangeUserRoleDto>,
 ) -> Result<impl IntoResponse, HttpError> {
     body.validate()
         .map_err(|e| HttpError::bad_request(e.to_string()))?;
@@ -131,13 +131,13 @@ pub async fn update_user_role(
 
     let user_id = uuid::Uuid::parse_str(&user.id.to_string()).unwrap();
 
-    let Some(new_role) = UserRole::from_str(&body.role) else {
+    let Some(new_role) = UserRole::from_str(body.role.as_str()) else {
         return Err(HttpError::bad_request("Invalid role provided".to_string()));
     };
 
     let result = app_state
         .db_client
-        .update_user_role(user_id.clone(), new_role)
+        .change_user_role(user_id.clone(), new_role)
         .await
         .map_err(|e| HttpError::server_error(e.to_string()))?;
 
@@ -155,7 +155,7 @@ pub async fn update_user_role(
 
 pub async fn update_user_password(
     Extension(app_state): Extension<Arc<AppState>>,
-    Extension(user): Extension<JWTAuthMiddeware>,
+    Extension(user): Extension<JWTAuthInfo>,
     Json(body): Json<UserPasswordUpdateDto>,
 ) -> Result<impl IntoResponse, HttpError> {
     body.validate()

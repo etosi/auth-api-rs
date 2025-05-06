@@ -17,10 +17,10 @@ impl UserRole {
         }
     }
 
-    pub fn to_str(&self) -> &str {
+    pub fn to_string(&self) -> String {
         match self {
-            UserRole::Admin => "admin",
-            UserRole::Normal => "normal",
+            UserRole::Admin => "admin".to_string(),
+            UserRole::Normal => "normal".to_string(),
         }
     }
 }

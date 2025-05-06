@@ -78,7 +78,7 @@ impl FilterUserDto {
             name: user.name.to_owned(),
             email: user.email.to_owned(),
             verified: user.verified,
-            role: user.role.to_str().to_string(),
+            role: user.role.to_string(),
             created_at: user.created_at.unwrap(),
             updated_at: user.updated_at.unwrap(),
         }
@@ -132,7 +132,7 @@ pub struct NameUpdateDto {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
-pub struct RoleUpdateDto {
+pub struct ChangeUserRoleDto {
     #[validate(custom(function = "validate_user_role"))]
     pub role: String,
 }
